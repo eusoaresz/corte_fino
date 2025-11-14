@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles (you can edit later) */
+body { @apply bg-neutral-900 text-white; }
