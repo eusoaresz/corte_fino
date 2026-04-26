@@ -19,22 +19,12 @@ Stack atual:
 
 ## 2. Pontos de Melhoria Imediata (Alta Prioridade)
 
-### 2.1 Asset faltante em Servicos
-- A pagina de servicos usa `BarbeariaInterna.jpg` como fundo.
-- Esse arquivo nao aparece atualmente na pasta `public/`.
-- Impacto: imagem de fundo quebrada na pagina.
-
-### 2.2 Header duplicado em Servicos
-- O `Header` ja e renderizado globalmente em `App.jsx`.
-- A pagina `Servicos.jsx` renderiza `Header` novamente.
-- Impacto: risco de topo duplicado e comportamento visual inconsistente.
-
-### 2.3 Link de contato no menu
+### 2.1 Link de contato no menu
 - O item Contato usa `Link` com `#contato`.
 - Para ancora interna, este padrao com react-router pode nao ser ideal.
 - Melhor caminho: secao de contato real + navegacao apropriada.
 
-### 2.4 Padronizacao de rotas
+### 2.2 Padronizacao de rotas
 - Ha uso misto de `/Servicos` e `/servicos`.
 - Recomendacao: manter sempre minusculo para padrao e manutencao.
 
