@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 
 const horarios = [
-  { dia: "Segunda a Sexta", hora: "09:00 - 20:00" },
-  { dia: "Sábado", hora: "09:00 - 18:00" },
+  { dia: "Segunda a Sexta", hora: "08:00 - 18:00" },
+  { dia: "Sábado", hora: "08:00 - 12:00" },
   { dia: "Domingo", hora: "Fechado" },
 ];
 

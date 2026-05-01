@@ -17,28 +17,19 @@ Stack atual:
 - Vite 5
 - Tailwind CSS 3
 
-## 2. Pontos de Melhoria Imediata (Alta Prioridade)
-
-### 2.1 Link de contato no menu
-- O item Contato usa `Link` com `#contato`.
-- Para ancora interna, este padrao com react-router pode nao ser ideal.
-- Melhor caminho: secao de contato real + navegacao apropriada.
-
-### 2.2 Padronizacao de rotas
-- Ha uso misto de `/Servicos` e `/servicos`.
-- Recomendacao: manter sempre minusculo para padrao e manutencao.
-
 ## 3. Melhorias de Produto e UX (Curto Prazo)
 
 ### 3.1 Agendamento mais robusto
-- Bloquear datas passadas.
-- Exibir erros e sucesso com UI amigavel (evitar `alert`).
-- Mostrar resumo completo antes da confirmacao final.
+- [Concluido] Bloqueio de datas passadas no campo de data (`min` + validacao).
+- [Concluido] Bloqueio de horarios ja ocupados na mesma data.
+- [Concluido] Resumo antes da confirmacao final (barbeiro, data, horario, duracao e periodo).
+- [Concluido] Feedback de erro com UI amigavel usando SweetAlert2 (sem `alert`).
 
 ### 3.2 Persistencia de estado
 - O fluxo depende de `state` da navegacao entre paginas.
 - Em refresh, dados podem ser perdidos.
-- Recomendacao: localStorage ou query params para resiliencia.
+- [Parcial] Agendamentos ja sao persistidos em `localStorage` para manter bloqueio de horario por data.
+- [Pendente] Persistir tambem os dados de tela/fluxo para recuperar completamente o estado apos refresh.
 
 ### 3.3 Experiencia de servicos
 - Adicionar duracao estimada e descricao curta por servico.
@@ -92,10 +83,10 @@ Sugestao de organizacao:
 4. Ajustar navegacao de contato.
 
 ### Fase 2 - UX e confiabilidade (1 a 2 semanas)
-1. Bloquear datas invalidas.
-2. Melhorar feedback de erros/sucesso.
-3. Persistir dados de agendamento localmente.
-4. Incluir resumo de servico selecionado.
+1. [Concluido] Bloquear datas invalidas.
+2. [Concluido] Melhorar feedback de erros/sucesso.
+3. [Concluido] Persistir dados de agendamento localmente.
+4. [Parcial] Incluir resumo antes da confirmacao (falta vincular servico selecionado no fluxo).
 
 ### Fase 3 - Evolucao funcional (2 a 4 semanas)
 1. Integrar backend para gravar agendamentos.
