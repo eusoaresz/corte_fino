@@ -4,6 +4,8 @@ import { Link, useLocation } from "react-router-dom";
 export default function Confirmation() {
   const { state } = useLocation();
   const { barberName, selectedDate, selectedTime } = state || {};
+  const estimatedDuration = "30 min";
+  const bookingStatus = "Agendamento confirmado no navegador atual";
 
   return (
     <section
@@ -24,6 +26,12 @@ export default function Confirmation() {
           </p>
           <p>
             <strong>Horário:</strong> {selectedTime}
+          </p>
+          <p>
+            <strong>Duração estimada:</strong> {estimatedDuration}
+          </p>
+          <p>
+            <strong>Status:</strong> {bookingStatus}
           </p>
         </div>
 

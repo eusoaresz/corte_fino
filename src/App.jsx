@@ -6,6 +6,7 @@ import Barbers from "./pages/Barbers";
 import Agendar from "./pages/Agendar";
 import Confirmation from "./pages/Confirmation";
 import Servicos from "./pages/Servicos";
+import Contato from "./pages/Contato";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/agendamento" element={<Agendar />} />
         <Route path="/confirmacao" element={<Confirmation />} />
         <Route path="/servicos" element={<Servicos />} />
+        <Route path="/contato" element={<Contato />} />
       </Routes>
     </BrowserRouter>
   );

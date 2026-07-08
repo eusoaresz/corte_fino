@@ -17,15 +17,16 @@ export default function Header() {
       <nav className="hidden md:flex gap-8 text-lg font-medium">
         <Link to="/" className="hover:text-yellow-400 transition">Início</Link>
         <Link to="/barbeiros" className="hover:text-yellow-400 transition">Agendar</Link>
-        <Link to="/Servicos" className="hover:text-yellow-400 transition">Serviços</Link>
-        <Link to="#contato" className="hover:text-yellow-400 transition">Contato</Link>
+        <Link to="/servicos" className="hover:text-yellow-400 transition">Serviços</Link>
+        <Link to="/contato" className="hover:text-yellow-400 transition">Contato</Link>
       </nav>
 
       {/* MENU MOBILE */}
 <nav className="flex justify-between w-full px-6 md:hidden text-sm font-medium">
   <Link to="/" className="hover:text-yellow-400 transition">Início</Link>
   <Link to="/barbeiros" className="hover:text-yellow-400 transition">Agendar</Link>
-  <Link to="/Servicos" className="hover:text-yellow-400 transition">Serviços</Link>
+  <Link to="/servicos" className="hover:text-yellow-400 transition">Serviços</Link>
+  <Link to="/contato" className="hover:text-yellow-400 transition">Contato</Link>
 </nav>
 
       

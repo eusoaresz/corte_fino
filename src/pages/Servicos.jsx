@@ -1,5 +1,4 @@
 import React from "react";
-import Header from "../components/Header";
 import { Link } from "react-router-dom";
 
 export default function Servicos() {
@@ -42,7 +41,6 @@ export default function Servicos() {
 
   return (
     <>
-      <Header />
       <section 
         className="min-h-screen bg-cover bg-center pt-24 px-4 text-white flex justify-center items-center" 
         style={{ backgroundImage: "url('Fundo.jpg')" }} // Mantendo o fundo
@@ -52,7 +50,7 @@ export default function Servicos() {
         <div className="relative z-10 hidden md:flex w-full max-w-5xl h-[600px] rounded-xl overflow-hidden shadow-2xl">
           
           {/* Fundo de visualização do Barbearia (Apenas para contexto visual do card) */}
-          <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('BarbeariaInterna.jpg')" }}>
+          <div className="w-full h-full bg-cover bg-center">
             <div className="absolute inset-0 bg-black/40"></div>
           </div>
           
