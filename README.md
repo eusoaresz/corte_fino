@@ -1,106 +1,154 @@
-# Corte Fino
+# Corte Fino — Barbearia
 
-Site de barbearia desenvolvido com React, Vite e Tailwind CSS.
+Sistema completo de agendamento para barbearia: site público para o cliente marcar
+horário e painel administrativo para gerenciar barbeiros, serviços, disponibilidade
+e agendamentos. Projeto dividido em backend (API) e frontend (site), cada um na sua
+própria pasta.
 
-O projeto apresenta uma experiencia de agendamento simples, com fluxo visual em varias telas:
-inicio, escolha de barbeiro, selecao de data/horario e confirmacao.
+```
+corte_fino/
+  api/   → Backend  — Node.js + Express + TypeScript + Prisma + MySQL/MariaDB
+  web/   → Frontend — React + Vite + Tailwind CSS
+```
+
+## Visão geral
+
+- **Área pública**: o cliente escolhe o serviço e/ou o barbeiro, vê apenas os
+  horários realmente disponíveis (calculados a partir da grade semanal do
+  barbeiro, dos bloqueios e dos agendamentos já confirmados) e confirma o
+  agendamento.
+- **Área administrativa** (`/admin`, protegida por login): CRUD de barbeiros,
+  CRUD de serviços, gestão da disponibilidade (grade semanal + bloqueios de
+  folga/feriado/pausa) e gestão dos agendamentos (listar com filtros, cancelar,
+  reagendar).
+- Toda a informação (barbeiros, serviços, horários) vem do banco de dados — nada
+  fica fixo no código do frontend.
 
 ## Tecnologias
 
-- React 18
-- React Router DOM 6
-- Vite 5
-- Tailwind CSS 3
-- PostCSS + Autoprefixer
+| Camada | Stack |
+|---|---|
+| Backend | Node.js, Express 5, TypeScript, Prisma 7, MySQL/MariaDB, Zod, JWT, bcrypt |
+| Frontend | React 18, Vite 5, React Router 6, Tailwind CSS 3, SweetAlert2 |
 
 ## Funcionalidades
 
-- Pagina inicial com destaque visual da marca.
-- Lista de barbeiros com descricao de perfil.
-- Selecao de data e horario para agendamento.
-- Tela de confirmacao com resumo do agendamento.
-- Pagina de servicos com abas para Servicos, Combos e Produtos.
-- Layout responsivo para desktop e mobile.
+- Barbeiros: criar, editar, remover (soft delete)
+- Serviços: criar, editar, remover (soft delete), com preço e duração
+- Disponibilidade: grade semanal por dia/horário e bloqueios (folgas, feriados, pausas)
+- Agendamentos: criação pública, listagem administrativa com filtros, cancelamento e reagendamento
+- Cálculo automático de horários livres, cruzando grade semanal, bloqueios e agendamentos existentes
+- Impede overbooking com constraint única no banco `(barbeiroId, data, horaInicio)`
+- Login administrativo com JWT + bcrypt + log de acessos
 
-## Fluxo de funcionamento
+## Como rodar
 
-1. O usuario acessa a pagina inicial em /.
-2. Clica em Agende seu Horario e vai para /barbeiros.
-3. Escolhe um barbeiro e e redirecionado para /agendamento.
-4. Seleciona dia e horario e confirma.
-5. O app navega para /confirmacao exibindo os dados escolhidos.
+### Pré-requisitos
 
-## Rotas da aplicacao
+- Node.js 18+
+- MySQL ou MariaDB rodando localmente (ou um serviço na nuvem)
+- Opcional: Bruno, Postman ou Insomnia para testar a API diretamente
 
-- / : Home
-- /barbeiros : Selecao de barbeiro
-- /agendamento : Escolha de data e horario
-- /confirmacao : Resumo do agendamento
-- /servicos : Lista de servicos e combos
+### 1. Criar o banco vazio
 
-## Requisitos
+```sql
+CREATE DATABASE corte_fino;
+```
 
-- Node.js 18+ (recomendado)
-- npm 9+ (ou equivalente compativel)
-
-## Como iniciar o projeto
-
-1. Instale as dependencias:
+### 2. Backend (`api/`)
 
 ```bash
+cd api
 npm install
+cp .env.example .env
 ```
 
-2. Rode em modo de desenvolvimento:
+Edite o `.env` com os dados reais do seu MySQL/MariaDB (`DATABASE_URL`,
+`DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_NAME`, `DATABASE_HOST`) e defina
+um `JWT_SECRET` próprio.
 
 ```bash
-npm run dev
+npx prisma migrate dev --name init   # cria as tabelas e gera o Prisma Client
+npm run seed                          # popula com dados de teste (veja abaixo)
+npm run dev                           # http://localhost:3000
 ```
 
-3. Abra no navegador o endereco exibido no terminal (geralmente http://localhost:5173).
+> Se depois de `migrate dev` o Prisma Client não for gerado automaticamente
+> (erro `Cannot find module '.../generated/prisma/client'`), rode `npx prisma generate`
+> manualmente e tente de novo.
 
-## Scripts disponiveis
+O `seed` cria:
+- Login admin: **`admin@cortefino.com`** / senha **`Admin@123`**
+- 2 barbeiros (Carlos e João)
+- 8 serviços (incluindo combos)
+- Grade de horários de segunda a sábado (09h–12h e 13h30–18h) para os dois
 
-- npm run dev : inicia servidor de desenvolvimento.
-- npm run build : gera build de producao em dist/.
-- npm run preview : serve localmente a build gerada.
+### 3. Frontend (`web/`)
 
-## Assets obrigatorios em public/
+Em outro terminal, sem fechar o da API:
 
-Para o layout aparecer corretamente, mantenha estes arquivos na pasta public/:
-
-- Fundo.jpg
-- Emblema.png
-- Barbeiro.png
-- homem1.jpg
-- homem2.jpg
-- BarbeariaInterna.jpg
-
-## Estrutura resumida
-
-```text
-src/
-   components/
-      Header.jsx
-   pages/
-      Home.jsx
-      Barbers.jsx
-      Agendar.jsx
-      Confirmation.jsx
-      Servicos.jsx
-   App.jsx
-   main.jsx
+```bash
+cd web
+npm install
+cp .env.example .env    # aponta VITE_API_URL para a API (padrão http://localhost:3000)
+npm run dev              # http://localhost:5173
 ```
 
-## Observacoes
+- Área pública: `http://localhost:5173`
+- Área administrativa: `http://localhost:5173/admin/login`
 
-- O projeto atualmente usa dados locais (mock) para barbeiros, servicos e combos.
-- O agendamento nao persiste em banco de dados.
-- O link de contato no menu pode ser conectado a uma secao/whatsapp no futuro.
+## Como testar
 
-## Proximos passos recomendados
+1. **API isolada**: com o backend rodando, acesse `http://localhost:3000/barbeiros`
+   no navegador — deve retornar um JSON com Carlos e João.
+2. **Fluxo do cliente**: pelo site, escolha serviço/barbeiro → dia → horário →
+   preencha nome e telefone → confirme. Tente marcar o **mesmo horário duas vezes**
+   para confirmar que o segundo agendamento é recusado.
+3. **Painel administrativo**: faça login com as credenciais do seed e teste criar/
+   editar/remover um barbeiro ou serviço, adicionar um bloqueio de dia inteiro para
+   um barbeiro (e confirmar que aquele dia some da agenda pública) e cancelar/
+   reagendar o agendamento criado no passo anterior.
 
-- Integrar backend para persistir agendamentos.
-- Validar disponibilidade real de horarios por barbeiro.
-- Adicionar notificacao de sucesso/erro sem uso de alert nativo.
-- Criar pagina de contato com canais oficiais da barbearia.
+## Problemas comuns
+
+| Erro | Causa provável | Solução |
+|---|---|---|
+| `Cannot find module '.../generated/prisma/client'` | O Prisma Client ainda não foi gerado | Rode `npx prisma generate` dentro de `api/` |
+| `Error: The datasource.url property is required...` | Falta o `prisma.config.ts` em `api/` | Confirme que o arquivo existe na raiz de `api/` (já incluído neste projeto) |
+| `Already in sync, no schema change...` ao rodar migrate | Normal — significa que as tabelas já existem e estão atualizadas | Nenhuma ação necessária, siga para o `seed`/`dev` |
+| Frontend não carrega dados / erro de rede no console | API não está rodando, ou `VITE_API_URL` errado no `web/.env` | Confirme que a API está no ar em `http://localhost:3000` e que o `.env` do `web` aponta pra lá |
+| `401` ao chamar rotas do admin | Token ausente/expirado | Faça login de novo em `/admin/login` (o token expira em 8h) |
+
+## Estrutura de pastas
+
+```
+api/
+  lib/               # Prisma client, mailer
+  prisma/            # schema, migrations, seed
+  src/
+    middlewares/      # autenticação (JWT)
+    routes/           # barbeiros, servicos, disponibilidade, bloqueios, agendamentos, usuarios
+    utils/horarios.ts # cálculo de horários disponíveis
+    server.ts
+
+web/
+  src/
+    lib/api.js         # cliente HTTP único (fonte única de dados)
+    public/             # Home, Barbers, Servicos, Agendar, Confirmation, Contato
+    admin/               # Login, Dashboard, Barbeiros, Servicos, Disponibilidade, Agendamentos
+    App.jsx              # roteamento público + administrativo
+```
+
+## Próximos passos sugeridos
+
+- Trocar o campo "nome do arquivo de foto" do barbeiro por upload de imagem de
+  verdade (disco local ou serviço como S3/Cloudinary).
+- Enviar e-mail de confirmação ao cliente quando o agendamento é criado — a
+  infraestrutura de e-mail via Mailtrap/Nodemailer já existe em `api/lib/mailer.ts`,
+  falta só plugar a chamada em `POST /agendamentos`.
+- Adicionar paginação na listagem de agendamentos do painel, à medida que o volume
+  de dados crescer.
+- Adicionar recuperação de senha do admin no frontend (a rota `POST
+  /usuarios/recuperar-senha` e `/redefinir-senha` já existem na API).
+- Trocar o `localStorage` do token do admin por um mecanismo com refresh token,
+  caso o projeto evolua para produção com múltiplos administradores.

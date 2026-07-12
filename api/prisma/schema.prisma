@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ── Barbeiros ────────────────────────────────────────────────────────────
+
+model Barbeiro {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(60)
+  descricao        String?            @db.Text
+  foto             String?            @db.VarChar(255)
+  ativo            Boolean            @default(true)
+  // Soft delete
+  deleted          Boolean            @default(false)
+  deletedAt        DateTime?          @map("deleted_at")
+  criadoEm         DateTime           @default(now()) @map("criado_em")
+  disponibilidades Disponibilidade[]
+  bloqueios        Bloqueio[]
+  agendamentos     Agendamento[]
+
+  @@map("barbeiros")
+}
+
+// ── Serviços ─────────────────────────────────────────────────────────────
+
+model Servico {
+  id             Int           @id @default(autoincrement())
+  nome           String        @db.VarChar(60)
+  descricao      String?       @db.Text
+  preco          Decimal       @db.Decimal(9, 2)
+  duracaoMinutos Int           @map("duracao_minutos")
+  ativo          Boolean       @default(true)
+  deleted        Boolean       @default(false)
+  deletedAt      DateTime?     @map("deleted_at")
+  agendamentos   Agendamento[]
+
+  @@map("servicos")
+}
+
+// ── Disponibilidade (grade semanal de horários) ─────────────────────────
+
+enum DiaSemana {
+  DOMINGO
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+}
+
+model Disponibilidade {
+  id               Int       @id @default(autoincrement())
+  barbeiroId       Int       @map("barbeiro_id")
+  barbeiro         Barbeiro  @relation(fields: [barbeiroId], references: [id])
+  diaSemana        DiaSemana @map("dia_semana")
+  horaInicio       String    @db.VarChar(5) @map("hora_inicio") // "09:00"
+  horaFim          String    @db.VarChar(5) @map("hora_fim")    // "18:00"
+  intervaloMinutos Int       @default(30) @map("intervalo_minutos")
+
+  @@unique([barbeiroId, diaSemana, horaInicio])
+  @@map("disponibilidades")
+}
+
+// ── Bloqueios (folgas, feriados, almoço, etc.) ──────────────────────────
+
+model Bloqueio {
+  id         Int      @id @default(autoincrement())
+  barbeiroId Int      @map("barbeiro_id")
+  barbeiro   Barbeiro @relation(fields: [barbeiroId], references: [id])
+  data       DateTime @db.Date
+  horaInicio String?  @db.VarChar(5) @map("hora_inicio") // null = dia inteiro
+  horaFim    String?  @db.VarChar(5) @map("hora_fim")
+  motivo     String?  @db.VarChar(120)
+
+  @@map("bloqueios")
+}
+
+// ── Agendamentos ─────────────────────────────────────────────────────────
+
+enum StatusAgendamento {
+  CONFIRMADO
+  CANCELADO
+  CONCLUIDO
+}
+
+model Agendamento {
+  id              Int               @id @default(autoincrement())
+  barbeiroId      Int               @map("barbeiro_id")
+  barbeiro        Barbeiro          @relation(fields: [barbeiroId], references: [id])
+  servicoId       Int               @map("servico_id")
+  servico         Servico           @relation(fields: [servicoId], references: [id])
+  clienteNome     String            @db.VarChar(60) @map("cliente_nome")
+  clienteTelefone String            @db.VarChar(20) @map("cliente_telefone")
+  clienteEmail    String?           @db.VarChar(60) @map("cliente_email")
+  data            DateTime          @db.Date
+  horaInicio      String            @db.VarChar(5) @map("hora_inicio")
+  horaFim         String            @db.VarChar(5) @map("hora_fim")
+  status          StatusAgendamento @default(CONFIRMADO)
+  observacoes     String?           @db.Text
+  criadoEm        DateTime          @default(now()) @map("criado_em")
+  atualizadoEm    DateTime          @updatedAt @map("atualizado_em")
+
+  @@unique([barbeiroId, data, horaInicio])
+  @@map("agendamentos")
+}
+
+// ── Segurança (login administrativo) ────────────────────────────────────
+
+model Usuario {
+  id                Int       @id @default(autoincrement())
+  nome              String    @db.VarChar(60)
+  email             String    @unique @db.VarChar(60)
+  senha             String    @db.VarChar(255)
+  ultimoLogin       DateTime? @map("ultimo_login")
+  primeiroAcesso    Boolean   @default(true) @map("primeiro_acesso")
+  codigoRecuperacao String?   @db.VarChar(10) @map("codigo_recuperacao")
+  codigoExpiracao   DateTime? @map("codigo_expiracao")
+  logs              Log[]
+
+  @@map("usuarios")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  acao      String   @db.VarChar(100)
+  detalhes  String?  @db.Text
+  ip        String?  @db.VarChar(45)
+  criadoEm  DateTime @default(now()) @map("criado_em")
+
+  @@map("logs")
+}
