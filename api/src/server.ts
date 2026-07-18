@@ -12,7 +12,7 @@ import routesAgendamentos from "./routes/agendamentos";
 import routesUsuarios from "./routes/usuarios";
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/barbeiros", routesBarbeiros);
 app.use("/servicos", routesServicos);
