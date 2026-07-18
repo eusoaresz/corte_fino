@@ -4,6 +4,21 @@ import { barbeirosApi } from "../../lib/api";
 
 const vazio = { nome: "", descricao: "", foto: "", ativo: true };
 
+const imagensPublicas = ["Barbeiro.png", "Emblema.png", "Fundo.jpg", "homem1.jpg", "homem2.jpg"];
+
+function normalizarFoto(foto) {
+  if (!foto) return "";
+  if (
+    foto.startsWith("data:") ||
+    foto.startsWith("http://") ||
+    foto.startsWith("https://") ||
+    foto.startsWith("/")
+  ) {
+    return foto;
+  }
+  return `/${foto}`;
+}
+
 export default function AdminBarbeiros() {
   const [barbeiros, setBarbeiros] = React.useState([]);
   const [carregando, setCarregando] = React.useState(true);
@@ -11,6 +26,8 @@ export default function AdminBarbeiros() {
   const [form, setForm] = React.useState(vazio);
   const [editandoId, setEditandoId] = React.useState(null);
   const [salvando, setSalvando] = React.useState(false);
+
+  const previewFoto = normalizarFoto(form.foto);
 
   const carregar = () => {
     setCarregando(true);
@@ -36,6 +53,20 @@ export default function AdminBarbeiros() {
   const handleCancelar = () => {
     setEditandoId(null);
     setForm(vazio);
+  };
+
+  const handleArquivoFoto = (event) => {
+    const arquivo = event.target.files?.[0];
+    if (!arquivo) return;
+
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      setForm((estadoAtual) => ({
+        ...estadoAtual,
+        foto: typeof leitor.result === "string" ? leitor.result : estadoAtual.foto,
+      }));
+    };
+    leitor.readAsDataURL(arquivo);
   };
 
   const handleSubmit = async (e) => {
@@ -99,13 +130,55 @@ export default function AdminBarbeiros() {
           rows={3}
         />
 
-        <label className="text-sm font-semibold block mb-1">Foto (nome do arquivo em /public)</label>
+        <label className="text-sm font-semibold block mb-1">Foto</label>
         <input
           value={form.foto}
           onChange={(e) => setForm({ ...form, foto: e.target.value })}
-          placeholder="homem1.jpg"
-          className="p-2 w-full rounded bg-white text-black mb-3"
+          placeholder="homem1.jpg, /homem1.jpg, https://... ou data:image/..."
+          className="p-2 w-full rounded bg-white text-black mb-2"
         />
+
+        <div className="mb-3 rounded-lg border border-white/10 bg-white/5 p-3">
+          <label className="text-sm font-semibold block mb-2">Ou envie uma imagem do computador</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleArquivoFoto}
+            className="block w-full text-sm text-gray-300 file:mr-4 file:rounded-lg file:border-0 file:bg-yellow-500 file:px-4 file:py-2 file:font-semibold file:text-black hover:file:bg-yellow-600"
+          />
+
+          <p className="mt-2 text-xs text-gray-400">
+            Se escolher um arquivo, ele será convertido para base64 e salvo no banco. Se digitar um nome,
+            usamos imagens do projeto em <span className="font-semibold text-gray-200">/public</span>.
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {imagensPublicas.map((imagem) => (
+              <button
+                key={imagem}
+                type="button"
+                onClick={() => setForm((estadoAtual) => ({ ...estadoAtual, foto: imagem }))}
+                className="rounded-full border border-white/10 px-3 py-1 text-xs text-gray-200 hover:border-yellow-500 hover:text-yellow-400"
+              >
+                {imagem}
+              </button>
+            ))}
+          </div>
+
+          {previewFoto && (
+            <div className="mt-4 flex items-center gap-4">
+              <img
+                src={previewFoto}
+                alt="Pré-visualização do barbeiro"
+                className="h-20 w-20 rounded-full object-cover border border-white/10"
+              />
+              <div className="text-xs text-gray-400 break-all">
+                <p className="font-semibold text-gray-200 mb-1">Pré-visualização</p>
+                <p>{form.foto}</p>
+              </div>
+            </div>
+          )}
+        </div>
 
         <label className="text-sm font-semibold flex items-center gap-2 mb-4">
           <input

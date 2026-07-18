@@ -8,7 +8,7 @@ const router = Router();
 const barbeiroSchema = z.object({
   nome: z.string().min(2).max(60),
   descricao: z.string().max(500).optional(),
-  foto: z.string().max(255).optional(),
+  foto: z.string().max(100000).optional(),
   ativo: z.boolean().optional(),
 });
 

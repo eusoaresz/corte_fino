@@ -2,6 +2,19 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { barbeirosApi } from "../../lib/api";
 
+function normalizarFoto(foto) {
+  if (!foto) return "Barbeiro.png";
+  if (
+    foto.startsWith("data:") ||
+    foto.startsWith("http://") ||
+    foto.startsWith("https://") ||
+    foto.startsWith("/")
+  ) {
+    return foto;
+  }
+  return `/${foto}`;
+}
+
 export default function Barbers() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,7 +67,7 @@ export default function Barbers() {
             className={`cursor-pointer w-80 p-6 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 shadow-xl transition-transform hover:scale-105`}
           >
             <img
-              src={barber.foto || "Barbeiro.png"}
+              src={normalizarFoto(barber.foto)}
               alt={barber.nome}
               className={`w-40 h-40 md:w-48 md:h-48 rounded-full mx-auto object-cover border-4 mb-4 transition-all ${
                 selectedBarber === barber.id ? "border-yellow-500 scale-105" : "border-white/10"

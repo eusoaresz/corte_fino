@@ -13,7 +13,7 @@ model Barbeiro {
   id               Int                @id @default(autoincrement())
   nome             String             @db.VarChar(60)
   descricao        String?            @db.Text
-  foto             String?            @db.VarChar(255)
+  foto             String?            @db.Text
   ativo            Boolean            @default(true)
   // Soft delete
   deleted          Boolean            @default(false)
