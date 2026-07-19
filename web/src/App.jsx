@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { AuthProvider } from "./admin/lib/useAuth";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
+import { ClientAuthProvider } from "./public/lib/useClientAuth";
+import ClientProtectedRoute from "./public/components/ClientProtectedRoute";
 
 // Área pública
 import Header from "./public/layout/Header";
@@ -11,6 +13,8 @@ import Agendar from "./public/pages/Agendar";
 import Confirmation from "./public/pages/Confirmation";
 import Servicos from "./public/pages/Servicos";
 import Contato from "./public/pages/Contato";
+import Conta from "./public/pages/Conta";
+import MinhaConta from "./public/pages/MinhaConta";
 
 // Área administrativa
 import AdminLayout from "./admin/layout/AdminLayout";
@@ -34,6 +38,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ClientAuthProvider>
         <Routes>
           {/* Área pública */}
           <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
@@ -42,6 +47,8 @@ export default function App() {
           <Route path="/confirmacao" element={<PublicLayout><Confirmation /></PublicLayout>} />
           <Route path="/servicos" element={<PublicLayout><Servicos /></PublicLayout>} />
           <Route path="/contato" element={<PublicLayout><Contato /></PublicLayout>} />
+          <Route path="/conta" element={<PublicLayout><Conta /></PublicLayout>} />
+          <Route path="/minha-conta" element={<PublicLayout><ClientProtectedRoute><MinhaConta /></ClientProtectedRoute></PublicLayout>} />
 
           {/* Área administrativa */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -60,6 +67,7 @@ export default function App() {
             <Route path="agendamentos" element={<AdminAgendamentos />} />
           </Route>
         </Routes>
+        </ClientAuthProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { verificarToken } from "../middlewares/auth";
+import { ReqCliente, verificarCliente, verificarToken } from "../middlewares/auth";
 import {
   diaSemanaDe,
   gerarSlotsDisponiveis,
@@ -110,23 +110,24 @@ const criarAgendamentoSchema = z.object({
   servicoId: z.number().int().positive(),
   data: z.string().regex(dataRegex),
   horaInicio: z.string().regex(horaRegex),
-  clienteNome: z.string().min(2).max(60),
-  clienteTelefone: z.string().min(8).max(20),
-  clienteEmail: z.string().email().max(60).optional(),
   observacoes: z.string().max(500).optional(),
 });
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", verificarCliente, async (req: ReqCliente, res: Response) => {
   const parsed = criarAgendamentoSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ erro: parsed.error.flatten().fieldErrors });
     return;
   }
 
-  const { barbeiroId, servicoId, data, horaInicio, clienteNome, clienteTelefone, clienteEmail, observacoes } =
-    parsed.data;
+  const { barbeiroId, servicoId, data, horaInicio, observacoes } = parsed.data;
 
   try {
+    const cliente = await prisma.cliente.findUnique({ where: { id: req.clienteId } });
+    if (!cliente) {
+      res.status(401).json({ erro: "Cliente não encontrado. Faça login novamente." });
+      return;
+    }
     const servico = await prisma.servico.findFirst({ where: { id: servicoId, deleted: false } });
     if (!servico) {
       res.status(404).json({ erro: "Serviço não encontrado." });
@@ -165,9 +166,10 @@ router.post("/", async (req: Request, res: Response) => {
         data: dataObj,
         horaInicio,
         horaFim,
-        clienteNome,
-        clienteTelefone,
-        clienteEmail,
+        clienteId: cliente.id,
+        clienteNome: cliente.nome,
+        clienteTelefone: cliente.telefone,
+        clienteEmail: cliente.email,
         observacoes,
       },
       include: { barbeiro: true, servico: true },

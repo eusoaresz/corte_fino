@@ -98,6 +98,8 @@ model Agendamento {
   clienteNome     String            @db.VarChar(60) @map("cliente_nome")
   clienteTelefone String            @db.VarChar(20) @map("cliente_telefone")
   clienteEmail    String?           @db.VarChar(60) @map("cliente_email")
+  clienteId       Int?              @map("cliente_id")
+  cliente         Cliente?          @relation(fields: [clienteId], references: [id])
   data            DateTime          @db.Date
   horaInicio      String            @db.VarChar(5) @map("hora_inicio")
   horaFim         String            @db.VarChar(5) @map("hora_fim")
@@ -108,6 +110,19 @@ model Agendamento {
 
   @@unique([barbeiroId, data, horaInicio])
   @@map("agendamentos")
+}
+
+// Clientes usam uma conta própria e nunca recebem acesso ao painel administrativo.
+model Cliente {
+  id            Int            @id @default(autoincrement())
+  nome          String         @db.VarChar(60)
+  email         String         @unique @db.VarChar(60)
+  telefone      String         @db.VarChar(20)
+  senha         String         @db.VarChar(255)
+  criadoEm      DateTime       @default(now()) @map("criado_em")
+  agendamentos  Agendamento[]
+
+  @@map("clientes")
 }
 
 // ── Segurança (login administrativo) ────────────────────────────────────

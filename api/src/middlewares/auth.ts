@@ -9,6 +9,11 @@ export interface ReqUsuario extends Request {
   usuarioEmail?: string;
 }
 
+export interface ReqCliente extends Request {
+  clienteId?: number;
+  clienteEmail?: string;
+}
+
 export async function verificarToken(
   req: ReqUsuario,
   res: Response,
@@ -24,7 +29,8 @@ export async function verificarToken(
   const token = authHeader.split(" ")[1];
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
+    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string; tipo?: string };
+    if (payload.tipo && payload.tipo !== "admin") throw new Error("Token de cliente");
     req.usuarioId = payload.id;
     req.usuarioEmail = payload.email;
     next();
@@ -46,5 +52,24 @@ export async function verificarToken(
     }
 
     res.status(401).json({ erro: "Token inválido ou expirado" });
+  }
+}
+
+export function verificarCliente(req: ReqCliente, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    res.status(401).json({ erro: "Faça login para continuar." });
+    return;
+  }
+
+  try {
+    const token = authHeader.split(" ")[1];
+    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string; tipo?: string };
+    if (payload.tipo !== "cliente") throw new Error("Token inválido para cliente");
+    req.clienteId = payload.id;
+    req.clienteEmail = payload.email;
+    next();
+  } catch {
+    res.status(401).json({ erro: "Sua sessão expirou. Faça login novamente." });
   }
 }

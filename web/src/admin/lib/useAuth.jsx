@@ -15,13 +15,18 @@ export function AuthProvider({ children }) {
     return resposta;
   };
 
+  const cadastrar = async (nome, email, senha) => {
+    await authApi.cadastrar(nome, email, senha);
+    return login(email, senha);
+  };
+
   const logout = () => {
     clearToken();
     setTokenState(null);
     setUsuario(null);
   };
 
-  const value = { token, usuario, autenticado: Boolean(token), login, logout };
+  const value = { token, usuario, autenticado: Boolean(token), login, cadastrar, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

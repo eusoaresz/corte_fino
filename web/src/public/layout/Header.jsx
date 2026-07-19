@@ -19,6 +19,7 @@ export default function Header() {
         <Link to="/barbeiros" className="hover:text-yellow-400 transition">Agendar</Link>
         <Link to="/servicos" className="hover:text-yellow-400 transition">Serviços</Link>
         <Link to="/contato" className="hover:text-yellow-400 transition">Contato</Link>
+        <Link to="/conta" className="hover:text-yellow-400 transition">Minha conta</Link>
       </nav>
 
       {/* MENU MOBILE */}
@@ -27,6 +28,7 @@ export default function Header() {
   <Link to="/barbeiros" className="hover:text-yellow-400 transition">Agendar</Link>
   <Link to="/servicos" className="hover:text-yellow-400 transition">Serviços</Link>
   <Link to="/contato" className="hover:text-yellow-400 transition">Contato</Link>
+  <Link to="/conta" className="hover:text-yellow-400 transition">Conta</Link>
 </nav>
 
       

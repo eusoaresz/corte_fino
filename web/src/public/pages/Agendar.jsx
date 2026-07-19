@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { agendamentosApi, barbeirosApi, servicosApi } from "../../lib/api";
+import { useClientAuth } from "../lib/useClientAuth";
 
 const getTodayIsoDate = () => {
   const now = new Date();
@@ -12,6 +13,7 @@ const getTodayIsoDate = () => {
 export default function Agendar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { autenticado, cliente } = useClientAuth();
 
   const [barbeiros, setBarbeiros] = React.useState([]);
   const [servicos, setServicos] = React.useState([]);
@@ -22,10 +24,6 @@ export default function Agendar() {
   const [horarios, setHorarios] = React.useState([]);
   const [carregandoHorarios, setCarregandoHorarios] = React.useState(false);
   const [erroHorarios, setErroHorarios] = React.useState("");
-
-  const [clienteNome, setClienteNome] = React.useState("");
-  const [clienteTelefone, setClienteTelefone] = React.useState("");
-  const [clienteEmail, setClienteEmail] = React.useState("");
 
   const todayIsoDate = getTodayIsoDate();
 
@@ -65,11 +63,11 @@ export default function Agendar() {
       });
       return false;
     }
-    if (!clienteNome.trim() || !clienteTelefone.trim()) {
+    if (!autenticado) {
       Swal.fire({
         icon: "error",
-        title: "Dados de contato",
-        text: "Informe seu nome e telefone para confirmar o agendamento.",
+        title: "Entre na sua conta",
+        text: "Faça login ou crie uma conta para confirmar seu agendamento.",
         confirmButtonColor: "#eab308",
       });
       return false;
@@ -84,9 +82,6 @@ export default function Agendar() {
         servicoId: Number(servicoId),
         data: selectedDate,
         horaInicio: selectedTime,
-        clienteNome: clienteNome.trim(),
-        clienteTelefone: clienteTelefone.trim(),
-        clienteEmail: clienteEmail.trim() || undefined,
       });
 
       navigate("/confirmacao", { state: { agendamento } });
@@ -120,7 +115,7 @@ export default function Agendar() {
           <p><strong>Data:</strong> ${selectedDate}</p>
           <p><strong>Horário:</strong> ${selectedTime}</p>
           <p><strong>Duração estimada:</strong> ${servicoSelecionado?.duracaoMinutos ?? "-"} min</p>
-          <p><strong>Cliente:</strong> ${clienteNome}</p>
+          <p><strong>Cliente:</strong> ${cliente?.nome ?? ""}</p>
           <p style="margin-top:12px;color:#6b7280;">Confira os dados antes de confirmar. Depois disso, o horário ficará bloqueado.</p>
         </div>
       `,
@@ -213,32 +208,9 @@ export default function Agendar() {
           </div>
         )}
 
-        <label className="font-semibold mb-1 block mt-4">Seu nome:</label>
-        <input
-          type="text"
-          value={clienteNome}
-          onChange={(e) => setClienteNome(e.target.value)}
-          className="p-3 w-full rounded bg-white text-black mb-4"
-          placeholder="Nome completo"
-        />
-
-        <label className="font-semibold mb-1 block">Telefone:</label>
-        <input
-          type="tel"
-          value={clienteTelefone}
-          onChange={(e) => setClienteTelefone(e.target.value)}
-          className="p-3 w-full rounded bg-white text-black mb-4"
-          placeholder="(00) 00000-0000"
-        />
-
-        <label className="font-semibold mb-1 block">E-mail (opcional):</label>
-        <input
-          type="email"
-          value={clienteEmail}
-          onChange={(e) => setClienteEmail(e.target.value)}
-          className="p-3 w-full rounded bg-white text-black mb-2"
-          placeholder="voce@email.com"
-        />
+        <div className="mt-5 mb-2 p-3 rounded bg-white/10 text-sm">
+          {autenticado ? <>Agendando como <strong>{cliente?.nome}</strong>.</> : <>Entre na sua conta para confirmar o agendamento.</>}
+        </div>
 
         <button
           onClick={handleReview}
