@@ -5,6 +5,8 @@
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const TOKEN_KEY = "corte_fino_admin_token";
+const CLIENT_TOKEN_KEY = "corte_fino_cliente_token";
+const CLIENT_KEY = "corte_fino_cliente";
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -18,11 +20,34 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
-async function request(path, { method = "GET", body, auth = false } = {}) {
+export function getClientToken() {
+  return localStorage.getItem(CLIENT_TOKEN_KEY);
+}
+
+export function setClientSession(token, cliente) {
+  localStorage.setItem(CLIENT_TOKEN_KEY, token);
+  localStorage.setItem(CLIENT_KEY, JSON.stringify(cliente));
+}
+
+export function getClient() {
+  const cliente = localStorage.getItem(CLIENT_KEY);
+  try { return cliente ? JSON.parse(cliente) : null; } catch { return null; }
+}
+
+export function clearClientSession() {
+  localStorage.removeItem(CLIENT_TOKEN_KEY);
+  localStorage.removeItem(CLIENT_KEY);
+}
+
+async function request(path, { method = "GET", body, auth = false, clientAuth = false } = {}) {
   const headers = { "Content-Type": "application/json" };
 
   if (auth) {
     const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+  if (clientAuth) {
+    const token = getClientToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
@@ -106,7 +131,7 @@ export const agendamentosApi = {
     request(
       `/agendamentos/horarios-disponiveis?barbeiroId=${barbeiroId}&servicoId=${servicoId}&data=${data}`
     ),
-  criar: (dados) => request("/agendamentos", { method: "POST", body: dados }),
+  criar: (dados) => request("/agendamentos", { method: "POST", body: dados, clientAuth: true }),
   listar: (filtros = {}) => {
     const params = new URLSearchParams(filtros);
     const qs = params.toString();
@@ -120,4 +145,13 @@ export const agendamentosApi = {
 // ── Usuários / autenticação administrativa ───────────────────────────────
 export const authApi = {
   login: (email, senha) => request("/usuarios/login", { method: "POST", body: { email, senha } }),
+  cadastrar: (nome, email, senha) =>
+    request("/usuarios", { method: "POST", body: { nome, email, senha } }),
+};
+
+export const clienteApi = {
+  cadastrar: (dados) => request("/clientes/cadastro", { method: "POST", body: dados }),
+  login: (email, senha) => request("/clientes/login", { method: "POST", body: { email, senha } }),
+  me: () => request("/clientes/me", { clientAuth: true }),
+  meusAgendamentos: () => request("/clientes/me/agendamentos", { clientAuth: true }),
 };

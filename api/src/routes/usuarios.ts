@@ -134,7 +134,7 @@ router.post("/login", async (req, res) => {
     data: { ultimoLogin: new Date(), primeiroAcesso: false },
   });
 
-  const token = jwt.sign({ id: usuario.id, email: usuario.email }, JWT_SECRET, { expiresIn: "8h" });
+  const token = jwt.sign({ id: usuario.id, email: usuario.email, tipo: "admin" }, JWT_SECRET, { expiresIn: "8h" });
 
   await registrarLog(usuario.id, "LOGIN", "Login realizado com sucesso", req.ip);
 

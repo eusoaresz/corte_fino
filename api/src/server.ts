@@ -10,6 +10,7 @@ import routesDisponibilidade from "./routes/disponibilidade";
 import routesBloqueios from "./routes/bloqueios";
 import routesAgendamentos from "./routes/agendamentos";
 import routesUsuarios from "./routes/usuarios";
+import routesClientes from "./routes/clientes";
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -20,6 +21,7 @@ app.use("/disponibilidades", routesDisponibilidade);
 app.use("/bloqueios", routesBloqueios);
 app.use("/agendamentos", routesAgendamentos);
 app.use("/usuarios", routesUsuarios);
+app.use("/clientes", routesClientes);
 
 app.get("/", (req, res) => {
   res.send("API: Barbearia Corte Fino");
