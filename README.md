@@ -117,6 +117,39 @@ Por padrão, `web/.env` usa `VITE_API_URL=http://localhost:3000`.
 - Login administrativo: `http://localhost:5173/admin/login`
 - Painel: `http://localhost:5173/admin`
 
+## Executar com Docker (Ubuntu)
+
+Esta opção inicia PostgreSQL, API e frontend em containers. É indicada para o
+ambiente de desenvolvimento na VM.
+
+1. Na raiz do projeto, crie o arquivo de variáveis:
+
+```bash
+cp .env.example .env
+```
+
+2. Se o navegador for aberto no Windows (fora da VM), altere
+`VITE_API_URL` no `.env` para o IP da VM, por exemplo
+`http://192.168.150.128:3000`. Para usar o navegador dentro da própria VM,
+deixe `http://localhost:3000`.
+
+3. Inicie os serviços:
+
+```bash
+docker compose up --build
+```
+
+Na primeira execução, a API gera o cliente Prisma e aplica o schema ao banco.
+Em outro terminal, carregue os dados de exemplo uma única vez:
+
+```bash
+docker compose exec api npm run seed
+```
+
+Abra `http://localhost:5173` no navegador da VM, ou
+`http://IP_DA_VM:5173` no Windows. Pare os serviços com `Ctrl+C`; os dados do
+PostgreSQL permanecem no volume `postgres_data`.
+
 Para gerar a versão de produção do frontend, execute `npm run build` dentro de `web/`.
 
 ## Rotas da aplicação web
